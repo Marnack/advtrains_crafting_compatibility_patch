@@ -312,7 +312,7 @@ function advtrains_crafting_compatibility_patch.remove_recipes_track_items()
 	minetest.clear_craft({output = "advtrains:dtrack_bumper_placer"})
 	minetest.clear_craft({output = "advtrains:dtrack_load_placer"})		-- This will also clear an additional recipe that is needed.
 
-	-- Restore any needed recipes that were removed by minetest.clear_craft()
+	-- Restore any needed recipes that were removed by one of the preceeding calls to minetest.clear_craft()
 	minetest.register_craft({
 		type="shapeless",
 		output = "advtrains:dtrack_load_placer",
@@ -441,6 +441,8 @@ function advtrains_crafting_compatibility_patch.remove_recipes_signs_and_signals
 	minetest.clear_craft({output = "advtrains:retrosignal_off"})
 	minetest.clear_craft({output = "advtrains:signal_off"})
 	minetest.clear_craft({output = "advtrains:signal_wall_r_off"})		-- This will also clear an additional recipe that is needed.
+	minetest.clear_craft({output = "advtrains:signal_wall_l_off"})		-- This will also clear an additional recipe that is needed.
+	minetest.clear_craft({output = "advtrains:signal_wall_t_off"})		-- This will also clear an additional recipe that is needed.
 	minetest.clear_craft({output = "advtrains_interlocking:tcb_node"})
 	minetest.clear_craft({output = "advtrains_signals_ks:hs_danger_0"})
 	minetest.clear_craft({output = "advtrains_signals_ks:mast_mast_0"})
@@ -449,11 +451,23 @@ function advtrains_crafting_compatibility_patch.remove_recipes_signs_and_signals
 	minetest.clear_craft({output = "advtrains_signals_ks:zs3_off_0"})
 	minetest.clear_craft({output = "advtrains_signals_ks:zs3v_off_0"})
 
-	-- Restore any needed recipes that were removed by minetest.clear_craft()
+	-- Restore any needed recipes that were removed by one of the preceeding calls to minetest.clear_craft()
 	minetest.register_craft({
 		output = "advtrains:signal_wall_r_off",
 		type = "shapeless",
 		recipe = {"advtrains:signal_wall_t_off"},
+	})
+
+	minetest.register_craft({
+		output = 'advtrains:signal_wall_l_off',
+		type = "shapeless",
+		recipe = {'advtrains:signal_wall_r_off'},
+	})
+
+	minetest.register_craft({
+		output = 'advtrains:signal_wall_t_off',
+		type = "shapeless",
+		recipe = {'advtrains:signal_wall_l_off'},
 	})
 
 	minetest.register_craft{
@@ -492,6 +506,24 @@ function advtrains_crafting_compatibility_patch.add_recipes_signs_and_signals(ma
 			{materials.dye_red, materials.steel_ingot, materials.steel_ingot},
 			{"", materials.steel_ingot, ""},
 			{materials.dye_dark_green, materials.steel_ingot, materials.steel_ingot},
+		},
+	})
+
+	minetest.register_craft({
+		output = 'advtrains:signal_wall_l_off 2',
+		recipe = {
+			{materials.steel_ingot, materials.steel_ingot, materials.dye_red},
+			{"", materials.steel_ingot, ""},
+			{materials.steel_ingot, materials.steel_ingot, materials.dye_dark_green},
+		},
+	})
+
+	minetest.register_craft({
+		output = 'advtrains:signal_wall_t_off 2',
+		recipe = {
+			{materials.steel_ingot, "", materials.steel_ingot},
+			{materials.steel_ingot, materials.steel_ingot, materials.steel_ingot},
+			{materials.dye_dark_green, "", materials.dye_red},
 		},
 	})
 

@@ -276,6 +276,8 @@ The `materials` parameter cited in the following list of API functions is a Lua 
 	+ "advtrains:retrosignal_off"
 	+ "advtrains:signal_off"
 	+ "advtrains:signal_wall_r_off"
+	+ "advtrains:signal_wall_l_off"
+	+ "advtrains:signal_wall_t_off"
 	+ "advtrains_interlocking:tcb_node"
 	+ "advtrains_signals_ks:hs_danger_0"
 	+ "advtrains_signals_ks:mast_mast_0"
