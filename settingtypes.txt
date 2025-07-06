@@ -14,6 +14,10 @@ advtrains_crafting_compatibility_patch_auto_apply (Automatically apply patch) bo
 #	advtrains items.
 advtrains_crafting_compatibility_patch_remove_original_recipes (Remove original "Minetest Game" based recipes) bool true
 
+#	Update the recipes for advtrains tools.
+#	If disabled, the original recipes for tools will not be changed or removed.
+advtrains_crafting_compatibility_patch_add_recipes_for_tools (Add replacement recipes for tools) bool true
+
 #	Update the recipes for advtrains track and track related items.
 #	If disabled, the original recipes for track and track related items will
 #	not be changed or removed.

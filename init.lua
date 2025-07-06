@@ -8,6 +8,9 @@ if auto_apply == nil then auto_apply = true end
 local remove_original_recipes = minetest.settings:get_bool("advtrains_crafting_compatibility_patch_remove_original_recipes")
 if remove_original_recipes == nil then remove_original_recipes = true end
 
+local add_recipes_for_tools = minetest.settings:get_bool("advtrains_crafting_compatibility_patch_add_recipes_for_tools")
+if add_recipes_for_tools == nil then add_recipes_for_tools = true end
+
 local add_recipes_for_track_items = minetest.settings:get_bool("advtrains_crafting_compatibility_patch_add_recipes_for_track_items")
 if add_recipes_for_track_items == nil then add_recipes_for_track_items = true end
 
@@ -46,6 +49,7 @@ local required_material_names = {
 	"group_stick",
 	"mese_crystal",
 	"mese_crystal_fragment",
+	"paper",
 	"sandstonebrick",
 	"screwdriver",
 	"sign_wall_steel",
@@ -94,6 +98,7 @@ function advtrains_crafting_compatibility_patch.get_materials_minetest_game()
 		group_stick				= "group:stick",
 		mese_crystal			= "default:mese_crystal",
 		mese_crystal_fragment	= "default:mese_crystal_fragment",
+		paper					= "default:paper",
 		sandstonebrick			= "default:sandstonebrick",
 		screwdriver				= minetest.get_modpath("screwdriver") and "screwdriver:screwdriver" or "default:steel_ingot",
 		sign_wall_steel			= "default:sign_wall_steel",
@@ -123,6 +128,7 @@ function advtrains_crafting_compatibility_patch.get_materials_mineclonia()
 		group_stick				= "group:stick",
 		mese_crystal			= minetest.get_modpath("mesecons") and "mesecons:redstone" or "mcl_core:lapis",
 		mese_crystal_fragment	= "mcl_core:emerald",		-- A compromise alternative
+		paper					= "mcl_core:paper",
 		sandstonebrick			= "mcl_core:sandstone",
 		screwdriver				= minetest.get_modpath("screwdriver") and "screwdriver:screwdriver" or "mcl_core:iron_ingot",
 		sign_wall_steel			= "mcl_core:iron_ingot",	-- A compromise alternative
@@ -152,6 +158,7 @@ function advtrains_crafting_compatibility_patch.get_materials_voxelibre()
 		group_stick				= "group:stick",
 		mese_crystal			= minetest.get_modpath("mesecons") and "mesecons:redstone" or "mcl_core:lapis",
 		mese_crystal_fragment	= "mcl_core:emerald",		-- A compromise alternative
+		paper					= "mcl_core:paper",
 		sandstonebrick			= "mcl_core:sandstone",
 		screwdriver				= minetest.get_modpath("screwdriver") and "screwdriver:screwdriver" or "mcl_core:iron_ingot",
 		sign_wall_steel			= "mcl_core:iron_ingot",	-- A compromise alternative
@@ -181,6 +188,7 @@ function advtrains_crafting_compatibility_patch.get_materials_farlands_reloaded(
 		group_stick				= "fl_trees:stick",
 		mese_crystal			= "fl_ores:mithite_ore",
 		mese_crystal_fragment	= "fl_ores:gold_ingot",		-- A compromise alternative
+		paper					= "fl_trees:palm_leaves",	-- A compromise alternative
 		sandstonebrick			= "fl_stone:sandstone_brick",
 		screwdriver				= minetest.get_modpath("screwdriver") and "screwdriver:screwdriver" or "fl_ores:iron_ingot",
 		sign_wall_steel			= "fl_ores:iron_ingot",		-- A compromise alternative
@@ -210,6 +218,7 @@ function advtrains_crafting_compatibility_patch.get_materials_hades_revisited()
 		group_stick				= "group:stick",
 		mese_crystal			= "hades_core:mese_crystal",
 		mese_crystal_fragment	= "hades_core:mese_crystal_fragment",
+		paper					= "hades_core:paper",
 		sandstonebrick			= "hades_core:sandstonebrick",
 		screwdriver				= minetest.get_modpath("screwdriver") and "screwdriver:screwdriver" or "hades_core:steel_ingot",
 		sign_wall_steel			= minetest.get_modpath("signs_lib") and "signs_lib:sign_wall_white_black" or "hades_core:steel_ingot",
@@ -258,11 +267,46 @@ function advtrains_crafting_compatibility_patch.get_materials()
 end
 
 -- ================================================================================================
+-- Category: Recipes for Tools
+-- ================================================================================================
+
+function advtrains_crafting_compatibility_patch.remove_recipes_tools()
+	minetest.clear_craft({output = "advtrains:trackworker"})
+	minetest.clear_craft({output = "advtrains:wagon_prop_tool"})
+end
+
+function advtrains_crafting_compatibility_patch.add_recipes_tools(materials)
+	if not advtrains_crafting_compatibility_patch.is_valid_materials_table(materials) then
+		minetest.debug("["..mod_name.."] Attempted to add crafting recipes for tools based on an invalid materials table.  Operation aborted")
+		return false
+	end
+
+	minetest.register_craft({
+		output = "advtrains:trackworker",
+		recipe = {
+			{materials.diamond},
+			{materials.screwdriver},
+			{materials.steel_ingot},
+		},
+	})
+
+	minetest.register_craft({
+		output = "advtrains:wagon_prop_tool",
+		recipe = {
+			{"advtrains:dtrack_placer", materials.dye_black, materials.paper},
+			{materials.screwdriver, materials.paper, materials.paper},
+			{"", "", materials.group_wood},
+		},
+	})
+
+	return true
+end
+
+-- ================================================================================================
 -- Category: Recipes for Track Related Items
 -- ================================================================================================
 
 function advtrains_crafting_compatibility_patch.remove_recipes_track_items()
-	minetest.clear_craft({output = "advtrains:trackworker"})
 	minetest.clear_craft({output = "advtrains:dtrack_placer"})
 	minetest.clear_craft({output = "advtrains:dtrack_slopeplacer"})
 	minetest.clear_craft({output = "advtrains:dtrack_bumper_placer"})
@@ -283,15 +327,6 @@ function advtrains_crafting_compatibility_patch.add_recipes_track_items(material
 		minetest.debug("["..mod_name.."] Attempted to add crafting recipes for track items based on an invalid materials table.  Operation aborted")
 		return false
 	end
-
-	minetest.register_craft({
-		output = "advtrains:trackworker",
-		recipe = {
-			{materials.diamond},
-			{materials.screwdriver},
-			{materials.steel_ingot},
-		},
-	})
 
 	minetest.register_craft({
 		output = "advtrains:dtrack_placer 50",
@@ -692,6 +727,13 @@ function advtrains_crafting_compatibility_patch.update_crafting_recipes(material
 	if not advtrains_crafting_compatibility_patch.is_valid_materials_table(materials) then
 		minetest.debug("["..mod_name.."] Attempted to update crafting recipes based on an invalid materials table.  Operation aborted")
 		return false
+	end
+
+	if add_recipes_for_tools then
+		if remove_original_recipes then
+			advtrains_crafting_compatibility_patch.remove_recipes_tools()
+		end
+		advtrains_crafting_compatibility_patch.add_recipes_tools(materials)
 	end
 
 	if add_recipes_for_track_items then

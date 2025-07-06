@@ -8,7 +8,7 @@ The **AdvTrains Crafting Compatibility Patch** provides support for using [AdvTr
 - [Farlands Reloaded](https://content.minetest.net/packages/wsor4035/farlands_reloaded/)
 - [Hades Revisited](https://content.minetest.net/packages/Wuzzy/hades_revisited/)
 - [Minecloneia](https://content.minetest.net/packages/ryvnf/mineclonia/)
-- [VoxeLibre](https://content.minetest.net/packages/Wuzzy/mineclone2/) (formerly known as MineClone2)
+- [VoxeLibre](https://content.minetest.net/packages/Wuzzy/mineclone2/)
 
 It is important to note that as a patch, this mod is susceptible to being broken by future changes to AdvTrains as well as the games for which it provides compatibility support.  It could also be made obsolete by future changes to AdvTrains if crafting compatibility support becomes included in that mod.  This means that any mod that uses this mod's API will be similarly 
 at risk of failing to function as expected.
@@ -40,6 +40,16 @@ The information in this section is copied from settingstype.txt and augmented wi
 > Default Value: true
 >
 > This setting is intended to keep broken crafting recipes from appearing in the crafting guide. When enabled, the original recipes for AdvTrains will be removed when replacement recipes are added. If disabled, the AdvTrains recipes that require unavailable items will not be removed. In some cases, it may be necessary to disable this setting if another mod will also be updating the AdvTrains crafting recipes or adding alternate recipes for AdvTrains items.
+
+- **advtrains_crafting_compatibility_patch_add_recipes_for_tools**
+
+> Display Name: Add replacement recipes for tools
+>
+> Type: bool
+>
+> Default Value: true
+>
+> Update the recipes for AdvTrains tools.  If disabled, the original recipes for tools will not be changed or removed.
 
 - **advtrains_crafting_compatibility_patch_add_recipes_for_track_items**
 
@@ -102,7 +112,7 @@ Each of the following two samples includes complete examples of the `mod.conf` a
 
 In this very simple contrived example, a single material substitution will be changed for games based on Minetest Game.  Specifically, the crafting recipes for AdvTrains that require a steel ingot will instead require a gold ingot.
 
-The `mon.conf `file will need to declare a dependency on advtrains_crafting_compatibility_patch.
+The `mod.conf `file will need to declare a dependency on advtrains_crafting_compatibility_patch.
  
 `mod.conf`:
 ```
@@ -137,7 +147,7 @@ end
 
 In this example, the [xcompat](https://content.minetest.net/packages/mt-mods/xcompat/) mod is used to provide a substitution mapping of the materials, replacing the built-in mapping provided by **AdvTrains Crafting Compatibility Patch**.
 
-The `mon.conf` file will need to declare a dependency on *both*  advtrains_crafting_compatibility_patch and xcompat.
+The `mod.conf` file will need to declare a dependency on *both*  advtrains_crafting_compatibility_patch and xcompat.
 
 `mod.conf`:
 ```
@@ -156,7 +166,7 @@ local materials = {
     chest                 = xcompat.materials.chest,
     diamond               = xcompat.materials.diamond,
     dye_black             = xcompat.materials.dye_black,       -- Note: xcompat doesn't currently support Voxelibre dyes.
-    dye_cyan              = xcompat.materials.dye_blue,        -- cyan is missing in xcompat, use alternate item
+    dye_cyan              = xcompat.materials.dye_cyan,
     dye_dark_green        = xcompat.materials.dye_dark_green,
     dye_red               = xcompat.materials.dye_red,
     dye_white             = xcompat.materials.dye_white,
@@ -167,11 +177,12 @@ local materials = {
     group_stick           = "group:stick",                     -- No group support in xcompat
     mese_crystal          = xcompat.materials.mese_crystal,
     mese_crystal_fragment = xcompat.materials.mese_crystal_fragment,
+    paper                 = xcompat.materials.paper,
     sandstonebrick        = xcompat.materials.sandstone,       -- missing in xcompat, use alternate item
     screwdriver           = xcompat.materials.steel_ingot,     -- missing in xcompat, use alternate item
     sign_wall_steel       = xcompat.materials.steel_ingot,     -- missing in xcompat, use alternate item
     steel_ingot           = xcompat.materials.steel_ingot,
-    stick                 = "group:stick",                     -- missing in xcompat so use group instead
+    stick                 = xcompat.materials.stick,
     stonebrick            = xcompat.materials.stone,           -- missing in xcompat, use alternate item
     torch                 = xcompat.materials.torch,
     trapdoor_steel        = xcompat.materials.steel_ingot,     -- missing in xcompat, use alternate item
@@ -184,6 +195,7 @@ if not advtrains_crafting_compatibility_patch.is_valid_materials_table(materials
 end
 	
 -- Ignore mod settings and force the removal of the existing recipes from AdvTrains.
+advtrains_crafting_compatibility_patch.remove_recipes_tools()
 advtrains_crafting_compatibility_patch.remove_recipes_track_items()
 advtrains_crafting_compatibility_patch.remove_recipes_wagon_parts()
 advtrains_crafting_compatibility_patch.remove_recipes_signs_and_signals()
@@ -199,7 +211,7 @@ As can be seen in this sample, xcompat is lacking support for several items at t
 Another approach could be to use the [adaptation_modpack](https://content.minetest.net/packages/SFENCE/adaptation_modpack/) which is conceptually similar to xcompat.  That approach, however, is left as an exercise for the reader.
 
 ## Materials Used in AdvTrains crafting recipes
-For quick reference, the following table shows the material input values used by AdvTrains at the time of this writing (AdvTrains release 2.4.3):
+For quick reference, the following table shows the material input values used by AdvTrains at the time of this writing (AdvTrains release 2.4.5):
 
 Material Input|Value used by AdvTrains
 :---|:---
@@ -217,6 +229,7 @@ group_wood|group:wood
 group_stick|group:stick
 mese_crystal|default:mese_crystal
 mese_crystal_fragment|default:mese_crystal_fragment
+paper|default:paper
 sandstonebrick|default:sandstonebrick
 screwdriver|screwdriver:screwdriver
 sign_wall_steel|default:sign_wall_steel
@@ -234,7 +247,7 @@ Of course, the list of input materials and the values used by AdvTrains are all 
 
 The following is a list of all of the API functions.  Note that the **add_recipes_...()** and **remove_recipes_...()** functions should only be called during server start-up.
 
-The `materials` parameter cited in the following list of API functions is a Lua table containing material names, each with an associated string that specifies the the material that should be used.  It is an error to omit a material from the table.  See the **Materials Used in AdvTrains crafting recipes** section above for the full list of required materials.  Also see Sample 2 in the **Customization with a new mod** section above for an example of creating the table.  Note that the various **get_materials...()** functions list below always return a fully populated materials table.  These returned tables can then be modified as shown in Sample 1 and passed the the various **add_recipes_...()** functions.
+The `materials` parameter cited in the following list of API functions is a Lua table containing material names, each with an associated string that specifies the the material that should be used.  It is an error to omit a material from the table.  See the **Materials Used in AdvTrains crafting recipes** section above for the full list of required materials.  Also see Sample 2 in the **Customization with a new mod** section above for an example of creating the table.  Note that the various **get_materials...()** functions listed below always return a fully populated materials table.  These returned tables can then be modified as shown in Sample 1 and passed the the various **add_recipes_...()** functions.
 
 - **is_valid_materials_table(materials)** - Checks if the given materials table has the required material entries.  See the **Materials Used in AdvTrains crafting recipes** section above for the full list of required materials.
 - **get_materials_minetest_game()** - Get the material mapping for a game based on Minetest Game.
@@ -243,8 +256,11 @@ The `materials` parameter cited in the following list of API functions is a Lua 
 - **get_materials_farlands_reloaded()** - Get the material mapping for a game based on Farlands Reloaded.
 - **get_materials_hades_revisited()** - Get the material mapping for a game based on Hades Revisited.
 - **get_materials()** - Get the material mapping for the currently detected game.  It returns `nil` if it could not identify the current game.
+- **remove_recipes_tools()** - Remove all current crafting recipes for tools.  This list includes the recipes for the following items:
+	+ "advtrains:trackworker"	*Note: This tool was previously grouped with "track items" in the first release of this mod.*
+	+ "advtrains:wagon_prop_tool"
+- **add_recipes_tools(materials)** - Add crafting recipes for tools using the given table of materials.  See **remove_recipes_tools()** above for the list of items for which recipes will be added.
 - **remove_recipes_track_items()** - Remove all current crafting recipes related to track items.  This list includes the recipes for the following items:
-	+ "advtrains:trackworker"
 	+ "advtrains:dtrack_placer"
 	+ "advtrains:dtrack_slopeplacer"
 	+ "advtrains:dtrack_bumper_placer"
