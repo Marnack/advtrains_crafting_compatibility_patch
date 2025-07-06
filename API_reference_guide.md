@@ -165,9 +165,11 @@ The code in the `init.lua` file defines the table of items need by AdvTrains cra
 local materials = {
     chest                 = xcompat.materials.chest,
     diamond               = xcompat.materials.diamond,
-    dye_black             = xcompat.materials.dye_black,       -- Note: xcompat doesn't currently support Voxelibre dyes.
+    dye_black             = xcompat.materials.dye_black,
     dye_cyan              = xcompat.materials.dye_cyan,
     dye_dark_green        = xcompat.materials.dye_dark_green,
+    dye_green             = xcompat.materials.dye_green,
+    dye_orange            = xcompat.materials.dye_orange,
     dye_red               = xcompat.materials.dye_red,
     dye_white             = xcompat.materials.dye_white,
     dye_yellow            = xcompat.materials.dye_yellow,
@@ -183,6 +185,7 @@ local materials = {
     sign_wall_steel       = xcompat.materials.steel_ingot,     -- missing in xcompat, use alternate item
     steel_ingot           = xcompat.materials.steel_ingot,
     stick                 = xcompat.materials.stick,
+    stone                 = xcompat.materials.stone,
     stonebrick            = xcompat.materials.stone,           -- missing in xcompat, use alternate item
     torch                 = xcompat.materials.torch,
     trapdoor_steel        = xcompat.materials.steel_ingot,     -- missing in xcompat, use alternate item
@@ -206,12 +209,12 @@ if not advtrains_crafting_compatibility_patch.update_crafting_recipes(materials)
 end
 ```
 
-As can be seen in this sample, xcompat is lacking support for several items at the time of this writing (including a lack of support for all dyes in Voxelibre).  Check for the latest version of xcompat in case these items have since been added to xcompat.
+As can be seen in this sample, xcompat is lacking support for several items at the time of this writing.  Check for the latest version of xcompat in case these items have since been added to xcompat.
 
 Another approach could be to use the [adaptation_modpack](https://content.minetest.net/packages/SFENCE/adaptation_modpack/) which is conceptually similar to xcompat.  That approach, however, is left as an exercise for the reader.
 
 ## Materials Used in AdvTrains crafting recipes
-For quick reference, the following table shows the material input values used by AdvTrains at the time of this writing (AdvTrains release 2.4.5):
+For quick reference, the following table shows the material input values used by AdvTrains at the time of this writing (AdvTrains release 2.6.0):
 
 Material Input|Value used by AdvTrains
 :---|:---
@@ -220,6 +223,8 @@ diamond|default:diamond
 dye_black|dye:black
 dye_cyan|dye:cyan
 dye_dark_green|dye:dark_green
+dye_green|dye:green
+dye_orange|dye:orange
 dye_red|dye:red
 dye_white|dye:white
 dye_yellow|dye:yellow
@@ -235,6 +240,7 @@ screwdriver|screwdriver:screwdriver
 sign_wall_steel|default:sign_wall_steel
 steel_ingot|default:steel_ingot
 stick|default:stick
+stone|default:stone
 stonebrick|default:stonebrick
 torch|default:torch
 trapdoor_steel|doors:trapdoor_steel
@@ -250,43 +256,66 @@ The following is a list of all of the API functions.  Note that the **add_recipe
 The `materials` parameter cited in the following list of API functions is a Lua table containing material names, each with an associated string that specifies the the material that should be used.  It is an error to omit a material from the table.  See the **Materials Used in AdvTrains crafting recipes** section above for the full list of required materials.  Also see Sample 2 in the **Customization with a new mod** section above for an example of creating the table.  Note that the various **get_materials...()** functions listed below always return a fully populated materials table.  These returned tables can then be modified as shown in Sample 1 and passed the the various **add_recipes_...()** functions.
 
 - **is_valid_materials_table(materials)** - Checks if the given materials table has the required material entries.  See the **Materials Used in AdvTrains crafting recipes** section above for the full list of required materials.
+
 - **get_materials_minetest_game()** - Get the material mapping for a game based on Minetest Game.
+
 - **get_materials_mineclonia()** - Get the material mapping for a game based on Mineclonia.
+
 - **get_materials_voxelibre()** - Get the material mapping for a game based on Voxelibre (Mineclone2).
+
 - **get_materials_farlands_reloaded()** - Get the material mapping for a game based on Farlands Reloaded.
+
 - **get_materials_hades_revisited()** - Get the material mapping for a game based on Hades Revisited.
+
 - **get_materials()** - Get the material mapping for the currently detected game.  It returns `nil` if it could not identify the current game.
-- **remove_recipes_tools()** - Remove all current crafting recipes for tools.  This list includes the recipes for the following items:
+
+- **remove_recipes_tools()** - Remove all current crafting recipes for tools that require materials defined in mods outside of AdvTrains.
+
+- **add_recipes_tools(materials)** - Add crafting recipes for tools using the given table of materials.  This list includes the recipes for the following items:
 	+ "advtrains:trackworker"	*Note: This tool was previously grouped with "track items" in the first release of this mod.*
 	+ "advtrains:wagon_prop_tool"
-- **add_recipes_tools(materials)** - Add crafting recipes for tools using the given table of materials.  See **remove_recipes_tools()** above for the list of items for which recipes will be added.
-- **remove_recipes_track_items()** - Remove all current crafting recipes related to track items.  This list includes the recipes for the following items:
-	+ "advtrains:dtrack_placer"
-	+ "advtrains:dtrack_slopeplacer"
+	+ "advtrains_interlocking:tool"
+	+ "advtrains_luaautomation:oppanel" (if mod enabled)
+	+ "advtrains_luaautomation:pcnaming" (if mod enabled)
+
+- **remove_recipes_track_items()** - Remove all current crafting recipes related to track items that require materials defined in mods outside of AdvTrains.
+  
+- **add_recipes_track_items(materials)** - Add crafting recipes for track related items using the given table of materials.  This list includes the recipes for the following items:
 	+ "advtrains:dtrack_bumper_placer"
 	+ "advtrains:dtrack_load_placer"
-- **add_recipes_track_items(materials)** - Add crafting recipes for track related items using the given table of materials.  See **remove_recipes_track_items()** above for the list of items for which recipes will be added.
-- **remove_recipes_wagon_parts()** - Remove all current crafting recipes related to wagon parts.  This list includes the recipes for the following items:
+	+ "advtrains:dtrack_placer"
+	+ "advtrains:dtrack_slopeplacer"
+
+- **remove_recipes_wagon_parts()** - Remove all current crafting recipes related to wagon parts that require materials defined in mods outside of AdvTrains.
+
+- **add_recipes_wagon_parts(materials)** - Add crafting recipes for locomotive and wagon items using the given table of materials.  This list includes the recipes for the following items:
 	+ "advtrains:boiler"
+	+ "advtrains:chimney"
 	+ "advtrains:driver_cab"
 	+ "advtrains:wheel"
-	+ "advtrains:chimney"
-- **add_recipes_wagon_parts(materials)** - Add crafting recipes for locomotive and wagon items using the given table of materials.  See **remove_recipes_wagon_parts()** above for the list of items for which recipes will be added.
-- **remove_recipes_signs_and_signals()** - Remove all current crafting recipes related to signs and signals.  This list includes the recipes for the following items:
+
+- **remove_recipes_signs_and_signals()** - Remove all current crafting recipes related to signs and signals that require materials defined in mods outside of AdvTrains.
+
+- **add_recipes_signs_and_signals(materials)** - Add crafting recipes for signs and signals using the given table of materials.  This list includes the recipes for the following items:
 	+ "advtrains:retrosignal_off"
 	+ "advtrains:signal_off"
-	+ "advtrains:signal_wall_r_off"
 	+ "advtrains:signal_wall_l_off"
+	+ "advtrains:signal_wall_r_off"
 	+ "advtrains:signal_wall_t_off"
-	+ "advtrains_interlocking:tcb_node"
-	+ "advtrains_signals_ks:hs_danger_0"
-	+ "advtrains_signals_ks:mast_mast_0"
-	+ "advtrains_signals_ks:ra_danger_0"
-	+ "advtrains_signals_ks:sign_8_0"
-	+ "advtrains_signals_ks:zs3_off_0"
-	+ "advtrains_signals_ks:zs3v_off_0"
-- **add_recipes_signs_and_signals(materials)** - Add crafting recipes for signs and signals using the given table of materials.  See **remove_recipes_signs_and_signals()** above for the list of items for which recipes will be added.
-- **remove_recipes_platforms()** - Remove all current crafting recipes related to platforms.  This list includes the recipes for the following items:
+	+ "advtrains_interlocking:tcb_node" (if mod enabled)
+	+ "advtrains_signals_ks:hs_danger_0" (if mod enabled)
+	+ "advtrains_signals_ks:mast_mast_0" (if mod enabled)
+	+ "advtrains_signals_ks:ra_danger_0" (if mod enabled)
+	+ "advtrains_signals_ks:sign_8_0" (if mod enabled)
+	+ "advtrains_signals_ks:vs_slow_0" (if mod enabled)
+	+ "advtrains_signals_ks:zs3_off_0" (if mod enabled)
+	+ "advtrains_signals_ks:zs3v_off_0" (if mod enabled)
+	+ "advtrains_signals_muc_ubahn:signal_wall_l_hp0" (if mod enabled)
+	+ "advtrains_signals_muc_ubahn:signal_wall_l_vr0" (if mod enabled)
+
+- **remove_recipes_platforms()** - Remove all current crafting recipes related to platforms that require materials defined in mods outside of AdvTrains.
+
+- **add_recipes_platforms(materials)** - Add crafting recipes *and the nodes* for platforms using the given table of materials.  This list includes the recipes for the following items:
 	+ "advtrains:platform_low_stonebrick"
 	+ "advtrains:platform_high_stonebrick"
 	+ "advtrains:platform_45_stonebrick"
@@ -295,7 +324,7 @@ The `materials` parameter cited in the following list of API functions is a Lua 
 	+ "advtrains:platform_high_sandstonebrick"
 	+ "advtrains:platform_45_sandstonebrick"
 	+ "advtrains:platform_45_low_sandstonebrick"
-- **add_recipes_platforms(materials)** - Add crafting recipes *and the nodes* for platforms using the given table of materials.  See **remove_recipes_platforms()** above for the list of items for which recipes and nodes will be added.
+
 - **update_crafting_recipes(materials)** - Updates the crafting recipes (and platform nodes as applicable) for the current game according to the **AdvTrains Crafting Compatibility Patch** mod settings using the given table of materials.  To ignore the mod settings, call the **remove_recipes_...()** and **add_recipes_...()** functions directly as needed instead of using this function.
 
 ## Special Note:
@@ -309,7 +338,7 @@ In general, it's probably best to always disable the **advtrains_crafting_compat
 
 ## Licenses
 
-Copyright © 2024 Marnack
+Copyright © 2024-2025 Marnack
 
 - AdvTrains Crafting Compatibility Patch is licensed under the GNU AGPL version 3 license.
 - Unless otherwise specified, AdvTrains Crafting Compatibility Patch media (textures and sounds) are licensed under [CC BY-SA 3.0 Unported](https://creativecommons.org/licenses/by-sa/3.0/).

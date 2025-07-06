@@ -26,6 +26,13 @@ if add_recipes_for_platforms == nil then add_recipes_for_platforms = false end
 local debug_mode = minetest.settings:get_bool("advtrains_crafting_compatibility_patch_debug_mode")
 if debug_mode == nil then debug_mode = false end
 
+local enabled_mods = {
+	advtrains_interlocking = minetest.get_modpath("advtrains_interlocking") and true,
+	advtrains_luaautomation = minetest.get_modpath("advtrains_luaautomation") and minetest.settings:get_bool("advtrains_luaautomation_enable_atlac_recipes", false) == true,
+	advtrains_signals_ks = minetest.get_modpath("advtrains_signals_ks") and true,
+	advtrains_signals_muc_ubahn = minetest.get_modpath("advtrains_signals_muc_ubahn") and true,
+}
+
 local function log_info(msg)
 	if debug_mode then
 		minetest.debug("["..mod_name.."] "..msg)
@@ -40,6 +47,8 @@ local required_material_names = {
 	"dye_black",
 	"dye_cyan",
 	"dye_dark_green",
+	"dye_green",
+	"dye_orange",
 	"dye_red",
 	"dye_white",
 	"dye_yellow",
@@ -55,6 +64,7 @@ local required_material_names = {
 	"sign_wall_steel",
 	"steel_ingot",
 	"stick",
+	"stone",
 	"stonebrick",
 	"torch",
 	"trapdoor_steel",
@@ -89,6 +99,8 @@ function advtrains_crafting_compatibility_patch.get_materials_minetest_game()
 		dye_black				= "dye:black",
 		dye_cyan				= "dye:cyan",
 		dye_dark_green			= "dye:dark_green",
+		dye_green				= "dye:green",
+		dye_orange				= "dye:orange",
 		dye_red					= "dye:red",
 		dye_white				= "dye:white",
 		dye_yellow				= "dye:yellow",
@@ -104,6 +116,7 @@ function advtrains_crafting_compatibility_patch.get_materials_minetest_game()
 		sign_wall_steel			= "default:sign_wall_steel",
 		steel_ingot				= "default:steel_ingot",
 		stick					= "default:stick",
+		stone					= "default:stone",
 		stonebrick				= "default:stonebrick",
 		torch					= "default:torch",
 		trapdoor_steel			= minetest.get_modpath("doors") and "doors:trapdoor_steel" or "default:steel_ingot",
@@ -119,6 +132,8 @@ function advtrains_crafting_compatibility_patch.get_materials_mineclonia()
 		dye_black				= "mcl_dyes:black",
 		dye_cyan				= "mcl_dyes:cyan",
 		dye_dark_green			= "mcl_dyes:dark_green",
+		dye_green				= "mcl_dyes:green",
+		dye_orange				= "mcl_dyes:orange",
 		dye_red					= "mcl_dyes:red",
 		dye_white				= "mcl_dyes:white",
 		dye_yellow				= "mcl_dyes:yellow",
@@ -134,6 +149,7 @@ function advtrains_crafting_compatibility_patch.get_materials_mineclonia()
 		sign_wall_steel			= "mcl_core:iron_ingot",	-- A compromise alternative
 		steel_ingot				= "mcl_core:iron_ingot",
 		stick					= "mcl_core:stick",
+		stone					= "mcl_core:stone",
 		stonebrick				= "mcl_core:stonebrick",
 		torch					= minetest.get_modpath("mcl_torches") and "mcl_torches:torch" or "group:coal",
 		trapdoor_steel			= minetest.get_modpath("mcl_doors") and "mcl_doors:iron_trapdoor", "mcl_core:iron_ingot",
@@ -149,6 +165,8 @@ function advtrains_crafting_compatibility_patch.get_materials_voxelibre()
 		dye_black				= "mcl_dye:black",
 		dye_cyan				= "mcl_dye:cyan",
 		dye_dark_green			= "mcl_dye:dark_green",
+		dye_green				= "mcl_dye:green",
+		dye_orange				= "mcl_dye:orange",
 		dye_red					= "mcl_dye:red",
 		dye_white				= "mcl_dye:white",
 		dye_yellow				= "mcl_dye:yellow",
@@ -164,6 +182,7 @@ function advtrains_crafting_compatibility_patch.get_materials_voxelibre()
 		sign_wall_steel			= "mcl_core:iron_ingot",	-- A compromise alternative
 		steel_ingot				= "mcl_core:iron_ingot",
 		stick					= "mcl_core:stick",
+		stone					= "mcl_core:stone",
 		stonebrick				= "mcl_core:stonebrick",
 		torch					= minetest.get_modpath("mcl_torches") and "mcl_torches:torch" or "group:coal",
 		trapdoor_steel			= minetest.get_modpath("mcl_doors") and "mcl_doors:iron_trapdoor", "mcl_core:iron_ingot",
@@ -179,6 +198,8 @@ function advtrains_crafting_compatibility_patch.get_materials_farlands_reloaded(
 		dye_black				= "fl_dyes:black_dye",
 		dye_cyan				= "fl_dyes:cyan_dye",
 		dye_dark_green			= "fl_dyes:dark_green_dye",
+		dye_green				= "fl_dyes:green_dye",
+		dye_orange				= "fl_dyes:orange_dye",
 		dye_red					= "fl_dyes:red_dye",
 		dye_white				= "fl_dyes:white_dye",
 		dye_yellow				= "fl_dyes:yellow_dye",
@@ -194,6 +215,7 @@ function advtrains_crafting_compatibility_patch.get_materials_farlands_reloaded(
 		sign_wall_steel			= "fl_ores:iron_ingot",		-- A compromise alternative
 		steel_ingot				= "fl_ores:iron_ingot",
 		stick					= "fl_trees:stick",
+		stone					= "fl_stone:stone",
 		stonebrick				= "fl_stone:stone_brick",
 		torch					= minetest.get_modpath("fl_light_sources") and "fl_light_sources:torch" or "fl_ores:coal_ore",
 		trapdoor_steel			= minetest.get_modpath("fl_doors") and "fl_doors:steel_door_a" or "fl_ores:iron_ingot",
@@ -209,6 +231,8 @@ function advtrains_crafting_compatibility_patch.get_materials_hades_revisited()
 		dye_black				= "hades_dye:black",
 		dye_cyan				= "hades_dye:cyan",
 		dye_dark_green			= "hades_dye:dark_green",
+		dye_green				= "hades_dye:green",
+		dye_orange				= "hades_dye:orange",
 		dye_red					= "hades_dye:red",
 		dye_white				= "hades_dye:white",
 		dye_yellow				= "hades_dye:yellow",
@@ -224,6 +248,7 @@ function advtrains_crafting_compatibility_patch.get_materials_hades_revisited()
 		sign_wall_steel			= minetest.get_modpath("signs_lib") and "signs_lib:sign_wall_white_black" or "hades_core:steel_ingot",
 		steel_ingot				= "hades_core:steel_ingot",
 		stick					= "hades_core:stick",
+		stone					= "hades_core:stone",
 		stonebrick				= "hades_core:stonebrick",
 		torch					= minetest.get_modpath("hades_torches") and "hades_torches:torch_low" or "hades_core:coal_lump",
 		trapdoor_steel			= minetest.get_modpath("hades_doors") and "hades_doors:trapdoor_steel" or "hades_core:steel_ingot",
@@ -273,6 +298,9 @@ end
 function advtrains_crafting_compatibility_patch.remove_recipes_tools()
 	minetest.clear_craft({output = "advtrains:trackworker"})
 	minetest.clear_craft({output = "advtrains:wagon_prop_tool"})
+	minetest.clear_craft({output = "advtrains_interlocking:tool"})
+	minetest.clear_craft({output = "advtrains_luaautomation:oppanel"})
+	minetest.clear_craft({output = "advtrains_luaautomation:pcnaming"})
 end
 
 function advtrains_crafting_compatibility_patch.add_recipes_tools(materials)
@@ -299,6 +327,31 @@ function advtrains_crafting_compatibility_patch.add_recipes_tools(materials)
 		},
 	})
 
+	if enabled_mods.advtrains_interlocking then
+		minetest.register_craft({
+			output = "advtrains_interlocking:tool",
+			type = "shapeless",
+			recipe = {materials.dye_green, "advtrains:trackworker", "advtrains_interlocking:tcb_node"}
+		})
+	end
+
+	if enabled_mods.advtrains_luaautomation then
+		minetest.register_craft({
+			output = "advtrains_luaautomation:oppanel",
+			recipe = {
+				{"", "mesecons_button:button_off", ""},
+				{"", "advtrains_luaautomation:mesecon_controller0000", ""},
+				{"", materials.stone, ""},
+			}
+		})
+
+		minetest.register_craft({
+			output = "advtrains_luaautomation:pcnaming",
+			type = "shapeless",
+			recipe = {materials.dye_red, "advtrains:trackworker"}
+		})
+	end
+
 	return true
 end
 
@@ -307,10 +360,10 @@ end
 -- ================================================================================================
 
 function advtrains_crafting_compatibility_patch.remove_recipes_track_items()
-	minetest.clear_craft({output = "advtrains:dtrack_placer"})
-	minetest.clear_craft({output = "advtrains:dtrack_slopeplacer"})
 	minetest.clear_craft({output = "advtrains:dtrack_bumper_placer"})
 	minetest.clear_craft({output = "advtrains:dtrack_load_placer"})		-- This will also clear an additional recipe that is needed.
+	minetest.clear_craft({output = "advtrains:dtrack_placer"})
+	minetest.clear_craft({output = "advtrains:dtrack_slopeplacer"})
 
 	-- Restore any needed recipes that were removed by one of the preceeding calls to minetest.clear_craft()
 	minetest.register_craft({
@@ -327,6 +380,33 @@ function advtrains_crafting_compatibility_patch.add_recipes_track_items(material
 		minetest.debug("["..mod_name.."] Attempted to add crafting recipes for track items based on an invalid materials table.  Operation aborted")
 		return false
 	end
+
+	-- Handle mod dependent material variations supported by advtrains.
+	local loader_core = materials.mese_crystal
+	if minetest.get_modpath("basic_materials") then
+		loader_core = "basic_materials:ic"
+	elseif minetest.get_modpath("technic") then
+		loader_core = "technic:control_logic_unit"
+	end
+
+	minetest.register_craft({
+		output = "advtrains:dtrack_bumper_placer 2",
+		recipe = {
+			{materials.group_wood, materials.dye_red},
+			{materials.steel_ingot, materials.steel_ingot},
+			{"advtrains:dtrack_placer", "advtrains:dtrack_placer"},
+		},
+	})
+
+	minetest.register_craft({
+		type="shapeless",
+		output = "advtrains:dtrack_load_placer",
+		recipe = {
+			"advtrains:dtrack_placer",
+			loader_core,
+			materials.chest
+		},
+	})
 
 	minetest.register_craft({
 		output = "advtrains:dtrack_placer 50",
@@ -347,33 +427,6 @@ function advtrains_crafting_compatibility_patch.add_recipes_track_items(material
 		},
 	})
 
-	minetest.register_craft({
-		output = "advtrains:dtrack_bumper_placer 2",
-		recipe = {
-			{materials.group_wood, materials.dye_red},
-			{materials.steel_ingot, materials.steel_ingot},
-			{"advtrains:dtrack_placer", "advtrains:dtrack_placer"},
-		},
-	})
-
-	-- Handle mod dependent material variations supported by advtrains.
-	local loader_core = materials.mese_crystal
-	if minetest.get_modpath("basic_materials") then
-		loader_core = "basic_materials:ic"
-	elseif minetest.get_modpath("technic") then
-		loader_core = "technic:control_logic_unit"
-	end
-
-	minetest.register_craft({
-		type="shapeless",
-		output = "advtrains:dtrack_load_placer",
-		recipe = {
-			"advtrains:dtrack_placer",
-			loader_core,
-			materials.chest
-		},
-	})
-
 	return true
 end
 
@@ -383,9 +436,9 @@ end
 
 function advtrains_crafting_compatibility_patch.remove_recipes_wagon_parts()
 	minetest.clear_craft({output = "advtrains:boiler"})
+	minetest.clear_craft({output = "advtrains:chimney"})
 	minetest.clear_craft({output = "advtrains:driver_cab"})
 	minetest.clear_craft({output = "advtrains:wheel"})
-	minetest.clear_craft({output = "advtrains:chimney"})
 end
 
 function advtrains_crafting_compatibility_patch.add_recipes_wagon_parts(materials)
@@ -400,6 +453,15 @@ function advtrains_crafting_compatibility_patch.add_recipes_wagon_parts(material
 			{materials.steel_ingot, materials.steel_ingot, materials.steel_ingot},
 			{materials.trapdoor_steel, "", materials.steel_ingot},
 			{materials.steel_ingot, materials.steel_ingot, materials.steel_ingot},
+		},
+	})
+
+	minetest.register_craft({
+		output = "advtrains:chimney",
+		recipe = {
+			{"", materials.steel_ingot, ""},
+			{"", materials.steel_ingot, materials.torch},
+			{"", materials.steel_ingot, ""},
 		},
 	})
 
@@ -421,15 +483,6 @@ function advtrains_crafting_compatibility_patch.add_recipes_wagon_parts(material
 		},
 	})
 
-	minetest.register_craft({
-		output = "advtrains:chimney",
-		recipe = {
-			{"", materials.steel_ingot, ""},
-			{"", materials.steel_ingot, materials.torch},
-			{"", materials.steel_ingot, ""},
-		},
-	})
-
 	return true
 end
 
@@ -440,28 +493,31 @@ end
 function advtrains_crafting_compatibility_patch.remove_recipes_signs_and_signals()
 	minetest.clear_craft({output = "advtrains:retrosignal_off"})
 	minetest.clear_craft({output = "advtrains:signal_off"})
-	minetest.clear_craft({output = "advtrains:signal_wall_r_off"})		-- This will also clear an additional recipe that is needed.
 	minetest.clear_craft({output = "advtrains:signal_wall_l_off"})		-- This will also clear an additional recipe that is needed.
+	minetest.clear_craft({output = "advtrains:signal_wall_r_off"})		-- This will also clear an additional recipe that is needed.
 	minetest.clear_craft({output = "advtrains:signal_wall_t_off"})		-- This will also clear an additional recipe that is needed.
 	minetest.clear_craft({output = "advtrains_interlocking:tcb_node"})
 	minetest.clear_craft({output = "advtrains_signals_ks:hs_danger_0"})
 	minetest.clear_craft({output = "advtrains_signals_ks:mast_mast_0"})
 	minetest.clear_craft({output = "advtrains_signals_ks:ra_danger_0"})
 	minetest.clear_craft({output = "advtrains_signals_ks:sign_8_0"})	-- This will also clear an additional recipe that is needed.
+	minetest.clear_craft({output = "advtrains_signals_ks:vs_slow_0"})
 	minetest.clear_craft({output = "advtrains_signals_ks:zs3_off_0"})
 	minetest.clear_craft({output = "advtrains_signals_ks:zs3v_off_0"})
+	minetest.clear_craft({output = "advtrains_signals_muc_ubahn:signal_wall_l_hp0"})	-- This will also clear an additional recipe that is needed.
+	minetest.clear_craft({output = "advtrains_signals_muc_ubahn:signal_wall_l_vr0"})	-- This will also clear an additional recipe that is needed.
 
 	-- Restore any needed recipes that were removed by one of the preceeding calls to minetest.clear_craft()
-	minetest.register_craft({
-		output = "advtrains:signal_wall_r_off",
-		type = "shapeless",
-		recipe = {"advtrains:signal_wall_t_off"},
-	})
-
 	minetest.register_craft({
 		output = 'advtrains:signal_wall_l_off',
 		type = "shapeless",
 		recipe = {'advtrains:signal_wall_r_off'},
+	})
+
+	minetest.register_craft({
+		output = "advtrains:signal_wall_r_off",
+		type = "shapeless",
+		recipe = {"advtrains:signal_wall_t_off"},
 	})
 
 	minetest.register_craft({
@@ -470,10 +526,26 @@ function advtrains_crafting_compatibility_patch.remove_recipes_signs_and_signals
 		recipe = {'advtrains:signal_wall_l_off'},
 	})
 
-	minetest.register_craft{
-		output = "advtrains_signals_ks:sign_8_0 1",
-		recipe = {{"advtrains_signals_ks:sign_lf7_8_0"}}
-	}
+	if enabled_mods.advtrains_signals_ks then
+		minetest.register_craft{
+			output = "advtrains_signals_ks:sign_8_0",
+			recipe = {{"advtrains_signals_ks:sign_lf7_8_0"}}
+		}
+	end
+
+	if enabled_mods.advtrains_signals_muc_ubahn then
+		minetest.register_craft{
+			output = "advtrains_signals_muc_ubahn:signal_wall_l_hp0",
+			type = "shapeless",
+			recipe = {"advtrains_signals_muc_ubahn:signal_wall_r_hp0"},
+		}
+
+		minetest.register_craft{
+			output = "advtrains_signals_muc_ubahn:signal_wall_l_vr0",
+			type = "shapeless",
+			recipe = {"advtrains_signals_muc_ubahn:signal_wall_r_vr0"},
+		}
+	end
 end
 
 function advtrains_crafting_compatibility_patch.add_recipes_signs_and_signals(materials)
@@ -501,20 +573,20 @@ function advtrains_crafting_compatibility_patch.add_recipes_signs_and_signals(ma
 	})
 
 	minetest.register_craft({
-		output = "advtrains:signal_wall_r_off 2",
-		recipe = {
-			{materials.dye_red, materials.steel_ingot, materials.steel_ingot},
-			{"", materials.steel_ingot, ""},
-			{materials.dye_dark_green, materials.steel_ingot, materials.steel_ingot},
-		},
-	})
-
-	minetest.register_craft({
 		output = 'advtrains:signal_wall_l_off 2',
 		recipe = {
 			{materials.steel_ingot, materials.steel_ingot, materials.dye_red},
 			{"", materials.steel_ingot, ""},
 			{materials.steel_ingot, materials.steel_ingot, materials.dye_dark_green},
+		},
+	})
+
+	minetest.register_craft({
+		output = "advtrains:signal_wall_r_off 2",
+		recipe = {
+			{materials.dye_red, materials.steel_ingot, materials.steel_ingot},
+			{"", materials.steel_ingot, ""},
+			{materials.dye_dark_green, materials.steel_ingot, materials.steel_ingot},
 		},
 	})
 
@@ -527,90 +599,124 @@ function advtrains_crafting_compatibility_patch.add_recipes_signs_and_signals(ma
 		},
 	})
 
-	-- Handle mod dependent material variations supported by advtrains.
-	local tcb_core = materials.mese_crystal
-	if minetest.get_modpath("basic_materials") then
-		tcb_core = "basic_materials:ic"
-	elseif minetest.get_modpath("technic") then
-		tcb_core = "technic:control_logic_unit"
+	if enabled_mods.advtrains_signals_ks then
+
+		-- Handle mod dependent material variations supported by advtrains.
+		local sign_material = materials.sign_wall_steel
+		if minetest.get_modpath("basic_materials") then
+			sign_material = "basic_materials:plastic_sheet"
+		end
+
+		minetest.register_craft({
+			output = "advtrains_signals_ks:vs_slow_0 2",
+			recipe = {
+				{materials.steel_ingot, materials.steel_ingot, materials.steel_ingot},
+				{materials.dye_dark_green, materials.steel_ingot, materials.dye_yellow},
+				{materials.steel_ingot, 'advtrains_signals_ks:mast_mast_0', materials.steel_ingot},
+			}
+		})
+
+		minetest.register_craft({
+			output = "advtrains_signals_ks:hs_danger_0 2",
+			recipe = {
+				{materials.steel_ingot, materials.dye_red, materials.steel_ingot},
+				{materials.dye_yellow, materials.steel_ingot, materials.dye_dark_green},
+				{materials.steel_ingot, "advtrains_signals_ks:mast_mast_0", materials.steel_ingot},
+			},
+		})
+
+		minetest.register_craft({
+			output = "advtrains_signals_ks:mast_mast_0 10",
+			recipe = {
+				{materials.steel_ingot},
+				{materials.dye_cyan},
+				{materials.steel_ingot},
+			},
+		})
+
+		minetest.register_craft({
+			output = "advtrains_signals_ks:ra_danger_0 2",
+			recipe = {
+				{materials.dye_red, materials.dye_white, materials.dye_red},
+				{materials.dye_white, materials.steel_ingot, materials.steel_ingot},
+				{materials.steel_ingot, "advtrains_signals_ks:mast_mast_0", materials.steel_ingot},
+			},
+		})
+
+		minetest.register_craft({
+			output = "advtrains_signals_ks:sign_8_0 2",
+			recipe = {
+				{sign_material, materials.dye_black},
+				{materials.stick, ""},
+				{materials.stick, ""},
+			},
+		})
+
+		minetest.register_craft({
+			output = "advtrains_signals_ks:zs3_off_0 2",
+			recipe = {
+				{"", materials.steel_ingot, ""},
+				{materials.steel_ingot , materials.dye_white, materials.steel_ingot},
+				{"", "advtrains_signals_ks:mast_mast_0", ""}
+			},
+		})
+
+		minetest.register_craft({
+			output = "advtrains_signals_ks:zs3v_off_0 2",
+			recipe = {
+				{"", materials.steel_ingot, ""},
+				{materials.steel_ingot , materials.dye_yellow, materials.steel_ingot},
+				{"", "advtrains_signals_ks:mast_mast_0", ""}
+			},
+		})
 	end
 
-	local tcb_secondary = materials.mese_crystal_fragment
-	if minetest.get_modpath("mesecons") then
-		tcb_secondary = "mesecons:wire_00000000_off"
+	if enabled_mods.advtrains_signals_muc_ubahn then
+		if enabled_mods.advtrains_interlocking then	-- Recipe requires tcb_node from this mod
+			minetest.register_craft({
+				output = "advtrains_signals_muc_ubahn:signal_wall_l_hp0",
+				type = "shapeless",
+				recipe = {"advtrains:signal_wall_l_off", "advtrains_interlocking:tcb_node"},
+			})
+		end
+
+		minetest.register_craft({
+			output = "advtrains_signals_muc_ubahn:signal_wall_l_vr0",
+			recipe = {
+				{materials.dye_orange, "", ""},
+				{materials.dye_orange, "advtrains_signals_muc_ubahn:signal_wall_l_hp0", materials.dye_dark_green},
+				{"", "", materials.dye_dark_green}
+			}
+		})
 	end
 
-	minetest.register_craft({
-		output = "advtrains_interlocking:tcb_node 4",
-		recipe = {
-			{tcb_secondary,tcb_core,tcb_secondary},
-			{"advtrains:dtrack_placer","","advtrains:dtrack_placer"}
-		},
-		replacements = {
-			{"advtrains:dtrack_placer","advtrains:dtrack_placer"},
-			{"advtrains:dtrack_placer","advtrains:dtrack_placer"},
-		}
-	})
+	if enabled_mods.advtrains_interlocking then
 
-	minetest.register_craft({
-		output = "advtrains_signals_ks:hs_danger_0 2",
-		recipe = {
-			{materials.steel_ingot, materials.dye_red, materials.steel_ingot},
-			{materials.dye_yellow, materials.steel_ingot, materials.dye_dark_green},
-			{materials.steel_ingot, "advtrains_signals_ks:mast_mast_0", materials.steel_ingot},
-		},
-	})
+		-- Handle mod dependent material variations supported by advtrains.
+		local tcb_core = materials.mese_crystal
+		if minetest.get_modpath("basic_materials") then
+			tcb_core = "basic_materials:ic"
+		elseif minetest.get_modpath("technic") then
+			tcb_core = "technic:control_logic_unit"
+		end
 
-	minetest.register_craft({
-		output = "advtrains_signals_ks:mast_mast_0 10",
-		recipe = {
-			{materials.steel_ingot},
-			{materials.dye_cyan},
-			{materials.steel_ingot},
-		},
-	})
+		local tcb_secondary = materials.mese_crystal_fragment
+		if minetest.get_modpath("mesecons") then
+			tcb_secondary = "mesecons:wire_00000000_off"
+		end
 
-	minetest.register_craft({
-		output = "advtrains_signals_ks:ra_danger_0 2",
-		recipe = {
-			{materials.dye_red, materials.dye_white, materials.dye_red},
-			{materials.dye_white, materials.steel_ingot, materials.steel_ingot},
-			{materials.steel_ingot, "advtrains_signals_ks:mast_mast_0", materials.steel_ingot},
-		},
-	})
-
-	-- Handle mod dependent material variations supported by advtrains.
-	local sign_material = materials.sign_wall_steel
-	if minetest.get_modpath("basic_materials") then
-		sign_material = "basic_materials:plastic_sheet"
+		minetest.register_craft({
+			output = "advtrains_interlocking:tcb_node 4",
+			recipe = {
+				{tcb_secondary,tcb_core,tcb_secondary},
+				{"advtrains:dtrack_placer","","advtrains:dtrack_placer"}
+			},
+			replacements = {
+				{"advtrains:dtrack_placer","advtrains:dtrack_placer"},
+				{"advtrains:dtrack_placer","advtrains:dtrack_placer"},
+			}
+		})
 	end
-
-	minetest.register_craft({
-		output = "advtrains_signals_ks:sign_8_0 2",
-		recipe = {
-			{sign_material, materials.dye_black},
-			{materials.stick, ""},
-			{materials.stick, ""},
-		},
-	})
-
-	minetest.register_craft({
-		output = "advtrains_signals_ks:zs3_off_0 2",
-		recipe = {
-			{"", materials.steel_ingot, ""},
-			{materials.steel_ingot , materials.dye_white, materials.steel_ingot},
-			{"", "advtrains_signals_ks:mast_mast_0", ""}
-		},
-	})
-
-	minetest.register_craft({
-		output = "advtrains_signals_ks:zs3v_off_0 2",
-		recipe = {
-			{"", materials.steel_ingot, ""},
-			{materials.steel_ingot , materials.dye_yellow, materials.steel_ingot},
-			{"", "advtrains_signals_ks:mast_mast_0", ""}
-		},
-	})
 
 	return true
 end
