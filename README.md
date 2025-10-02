@@ -31,4 +31,4 @@ Copyright © 2024-2025 Marnack
 
 ### Attributions
 
-- Portions of the crafting code were copied from [AdvTrains](https://git.bananach.space/advtrains.git/) (release-2.6.0) by orwell96 and contibutors which is licensed under AGPL-3.0-or-later.
+- Portions of the crafting code were copied from [AdvTrains](https://git.bananach.space/advtrains.git/) (release-2.8.0) by orwell96 and contibutors which is licensed under AGPL-3.0-or-later.

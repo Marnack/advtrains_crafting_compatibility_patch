@@ -214,11 +214,12 @@ As can be seen in this sample, xcompat is lacking support for several items at t
 Another approach could be to use the [adaptation_modpack](https://content.minetest.net/packages/SFENCE/adaptation_modpack/) which is conceptually similar to xcompat.  That approach, however, is left as an exercise for the reader.
 
 ## Materials Used in AdvTrains crafting recipes
-For quick reference, the following table shows the material input values used by AdvTrains at the time of this writing (AdvTrains release 2.6.0):
+For quick reference, the following table shows the material input values used by AdvTrains at the time of this writing (AdvTrains release 2.8.0):
 
 Material Input|Value used by AdvTrains
 :---|:---
 chest|default:chest
+coal_lump|default:coal_lump
 diamond|default:diamond
 dye_black|dye:black
 dye_cyan|dye:cyan
@@ -230,8 +231,8 @@ dye_white|dye:white
 dye_yellow|dye:yellow
 glass|default:glass
 gravel|default:gravel
-group_wood|group:wood
 group_stick|group:stick
+group_wood|group:wood
 mese_crystal|default:mese_crystal
 mese_crystal_fragment|default:mese_crystal_fragment
 paper|default:paper

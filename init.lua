@@ -28,6 +28,7 @@ if debug_mode == nil then debug_mode = false end
 
 local enabled_mods = {
 	advtrains_interlocking = minetest.get_modpath("advtrains_interlocking") and true,
+	advtrains_line_automation = minetest.get_modpath("advtrains_line_automation") and true,
 	advtrains_luaautomation = minetest.get_modpath("advtrains_luaautomation") and minetest.settings:get_bool("advtrains_luaautomation_enable_atlac_recipes", false) == true,
 	advtrains_signals_ks = minetest.get_modpath("advtrains_signals_ks") and true,
 	advtrains_signals_muc_ubahn = minetest.get_modpath("advtrains_signals_muc_ubahn") and true,
@@ -43,6 +44,7 @@ end
 
 local required_material_names = {
 	"chest",
+	"coal_lump",
 	"diamond",
 	"dye_black",
 	"dye_cyan",
@@ -54,8 +56,8 @@ local required_material_names = {
 	"dye_yellow",
 	"glass",
 	"gravel",
-	"group_wood",
 	"group_stick",
+	"group_wood",
 	"mese_crystal",
 	"mese_crystal_fragment",
 	"paper",
@@ -95,6 +97,7 @@ function advtrains_crafting_compatibility_patch.get_materials_minetest_game()
 		base_game				= "Minetest Game",
 
 		chest					= "default:chest",
+		coal_lump				= "default:coal_lump",
 		diamond					= "default:diamond",
 		dye_black				= "dye:black",
 		dye_cyan				= "dye:cyan",
@@ -128,6 +131,7 @@ function advtrains_crafting_compatibility_patch.get_materials_mineclonia()
 		base_game				= "Mineclonia",
 
 		chest					=  minetest.get_modpath("mcl_chests") and "mcl_chests:chest" or "group:wood",
+		coal_lump				= "mcl_core:coal_lump",
 		diamond					= "mcl_core:diamond",
 		dye_black				= "mcl_dyes:black",
 		dye_cyan				= "mcl_dyes:cyan",
@@ -161,6 +165,7 @@ function advtrains_crafting_compatibility_patch.get_materials_voxelibre()
 		base_game				= "VoxeLibre/MineClone2",
 
 		chest					=  minetest.get_modpath("mcl_chests") and "mcl_chests:chest" or "group:wood",
+		coal_lump				= "mcl_core:coal_lump",
 		diamond					= "mcl_core:diamond",
 		dye_black				= "mcl_dye:black",
 		dye_cyan				= "mcl_dye:cyan",
@@ -194,6 +199,7 @@ function advtrains_crafting_compatibility_patch.get_materials_farlands_reloaded(
 		base_game				= "Farlands Reloaded",
 
 		chest					= minetest.get_modpath("fl_storage") and "fl_storage:wood_chest" or "group:plank",
+		coal_lump				= "fl_ores:coal_ore",
 		diamond					= "fl_ores:diamond_ore",
 		dye_black				= "fl_dyes:black_dye",
 		dye_cyan				= "fl_dyes:cyan_dye",
@@ -227,6 +233,7 @@ function advtrains_crafting_compatibility_patch.get_materials_hades_revisited()
 		base_game				= "Hades Revisited",
 
 		chest					= minetest.get_modpath("hades_chests") and "hades_chests:chest" or "group:wood",
+		coal_lump				= "hades_core:coal_lump",
 		diamond					= "hades_core:diamond",
 		dye_black				= "hades_dye:black",
 		dye_cyan				= "hades_dye:cyan",
@@ -301,6 +308,7 @@ function advtrains_crafting_compatibility_patch.remove_recipes_tools()
 	minetest.clear_craft({output = "advtrains_interlocking:tool"})
 	minetest.clear_craft({output = "advtrains_luaautomation:oppanel"})
 	minetest.clear_craft({output = "advtrains_luaautomation:pcnaming"})
+--	minetest.clear_craft({output = "advtrains_line_automation:stanicni_rozhlas"})	-- not yet enabled in Advtrains
 end
 
 function advtrains_crafting_compatibility_patch.add_recipes_tools(materials)
@@ -352,6 +360,20 @@ function advtrains_crafting_compatibility_patch.add_recipes_tools(materials)
 		})
 	end
 
+	-- The following is not yet enabled in Advtrains
+	--[[
+	if enabled_mods.advtrains_line_automation then
+		core.register_craft({
+			output = "advtrains_line_automation:stanicni_rozhlas",
+			recipe = {
+				{materials.steel_ingot, materials.steel_ingot, materials.steel_ingot},
+				{materials.steel_ingot, "mesecons_noteblock:noteblock", materials.steel_ingot},
+				{materials.steel_ingot, materials.steel_ingot, materials.steel_ingot},
+			},
+		})
+	end
+	--]]
+
 	return true
 end
 
@@ -364,6 +386,7 @@ function advtrains_crafting_compatibility_patch.remove_recipes_track_items()
 	minetest.clear_craft({output = "advtrains:dtrack_load_placer"})		-- This will also clear an additional recipe that is needed.
 	minetest.clear_craft({output = "advtrains:dtrack_placer"})
 	minetest.clear_craft({output = "advtrains:dtrack_slopeplacer"})
+	minetest.clear_craft({output = "advtrains_line_automation:dtrack_stop_placer"})
 
 	-- Restore any needed recipes that were removed by one of the preceeding calls to minetest.clear_craft()
 	minetest.register_craft({
@@ -426,6 +449,16 @@ function advtrains_crafting_compatibility_patch.add_recipes_track_items(material
 			materials.gravel,
 		},
 	})
+
+	if enabled_mods.advtrains_line_automation then
+		minetest.register_craft({
+			output = "advtrains_line_automation:dtrack_stop_placer 2",
+			recipe = {
+				{materials.coal_lump, ""},
+				{"advtrains:dtrack_placer", "advtrains:dtrack_placer"},
+			},
+		})
+	end
 
 	return true
 end
