@@ -252,7 +252,7 @@ function advtrains_crafting_compatibility_patch.get_materials_hades_revisited()
 		paper					= "hades_core:paper",
 		sandstonebrick			= "hades_core:sandstonebrick",
 		screwdriver				= minetest.get_modpath("screwdriver") and "screwdriver:screwdriver" or "hades_core:steel_ingot",
-		sign_wall_steel			= minetest.get_modpath("signs_lib") and "signs_lib:sign_wall_white_black" or "hades_core:steel_ingot",
+		sign_wall_steel			= minetest.get_modpath("hades_signs") and "hades_signs:sign_wall_steel_white_black" or "hades_core:steel_ingot",
 		steel_ingot				= "hades_core:steel_ingot",
 		stick					= "hades_core:stick",
 		stone					= "hades_core:stone",
